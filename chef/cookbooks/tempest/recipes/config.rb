@@ -74,7 +74,7 @@ end
 glance_address = Chef::Recipe::Barclamp::Inventory.get_network_by_type(glance, "admin").address if glance_address.nil?
 glance_port = glance[:glance][:api][:bind_port]
 
-flavor_ref = "1"
+flavor_ref = "7"
 alt_flavor_ref = "6"
 # NOTE(aandreev): selected "2" while merging 
 #alt_flavor_ref = "1"
@@ -179,7 +179,8 @@ end
 
 bash "create_yet_another_tiny_flavor" do
   code <<-EOH
-  nova --os_username #{tempest_comp_user} --os_password #{tempest_comp_pass} --os_tenant_name #{tempest_comp_tenant} --os_auth_url http://#{keystone_address}:5000/v2.0 flavor-create tempest-stuff #{alt_flavor_ref} 256 1 1 || exit 0
+  nova --os_username #{tempest_comp_user} --os_password #{tempest_comp_pass} --os_tenant_name #{tempest_comp_tenant} --os_auth_url http://#{keystone_address}:5000/v2.0 flavor-create tempest-stuff #{alt_flavor_ref} 128 1 1 || exit 0
+  nova --os_username #{tempest_comp_user} --os_password #{tempest_comp_pass} --os_tenant_name #{tempest_comp_tenant} --os_auth_url http://#{keystone_address}:5000/v2.0 flavor-create tempest-stuff-2 #{flavor_ref} 128 1 1 || exit 0
 EOH
 end
 
