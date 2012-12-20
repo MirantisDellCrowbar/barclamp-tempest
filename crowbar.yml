@@ -102,7 +102,7 @@ debs:
     - python-unittest2
     - python-nose
     - python-httplib2
-    - glance-client
+    - python-glanceclient
     - python-novaclient
 
 extra_files:
