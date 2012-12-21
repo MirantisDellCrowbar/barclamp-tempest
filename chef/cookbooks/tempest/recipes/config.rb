@@ -57,6 +57,9 @@ tempest_comp_user = node[:tempest][:tempest_user_username]
 tempest_comp_pass = node[:tempest][:tempest_user_password]
 tempest_comp_tenant = node[:tempest][:tempest_user_tenant]
 
+tempest_adm_user = node[:tempest][:tempest_adm_username]
+tempest_adm_pass = node[:tempest][:tempest_adm_password]
+
 keystone_address = Chef::Recipe::Barclamp::Inventory.get_network_by_type(keystone, "admin").address if keystone_address.nil?
 keystone_token = keystone[:keystone][:service][:token]
 keystone_admin_port = keystone[:keystone][:api][:admin_port]
@@ -92,25 +95,31 @@ keystone_register "create tenant #{tempest_comp_tenant} for tempest" do
   action :add_tenant
 end
 
-keystone_register "add #{tempest_comp_user}:#{tempest_comp_tenant} user" do
-  host keystone_address
-  port keystone_admin_port
-  token keystone_token
-  user_name tempest_comp_user
-  user_password tempest_comp_pass
-  tenant_name tempest_comp_tenant 
-  action :add_user
+users = { {'name' => tempest_comp_user, 'pass' => tempest_comp_pass, 'role' => 'Member'},
+              {'name' => tempest_adm_user, 'pass' => tempest_adm_pass, 'role' => 'admin' },
+            }
+users.each do |user|
+  keystone_register "add #{user[:name]}:#{user[:pass]} user" do
+    host keystone_address
+    port keystone_admin_port
+    token keystone_token
+    user_name user[:name]
+    user_password user[:pass]
+    tenant_name tempest_comp_tenant 
+    action :add_user
+  end
+
+  keystone_register "add #{user[:name]}:#{tempest_comp_tenant} user #{user[:role]} role" do
+    host keystone_address
+    port keystone_admin_port
+    token keystone_token
+    user_name user[:name]
+    role_name user[:role]
+    tenant_name tempest_comp_tenant 
+    action :add_access
+  end
 end
 
-keystone_register "add #{tempest_comp_user}:#{tempest_comp_tenant} user admin role" do
-  host keystone_address
-  port keystone_admin_port
-  token keystone_token
-  user_name tempest_comp_user
-  role_name "Member"
-  tenant_name tempest_comp_tenant 
-  action :add_access
-end
 
 machine_id_file = node[:tempest][:tempest_path] + '/machine.id'
 
@@ -177,8 +186,8 @@ end
 
 bash "create_yet_another_tiny_flavor" do
   code <<-EOH
-  nova --os_username #{tempest_comp_user} --os_password #{tempest_comp_pass} --os_tenant_name #{tempest_comp_tenant} --os_auth_url http://#{keystone_address}:5000/v2.0 flavor-create tempest-stuff #{alt_flavor_ref} 128 1 1 || exit 0
-  nova --os_username #{tempest_comp_user} --os_password #{tempest_comp_pass} --os_tenant_name #{tempest_comp_tenant} --os_auth_url http://#{keystone_address}:5000/v2.0 flavor-create tempest-stuff-2 #{flavor_ref} 132 1 1 || exit 0
+  nova --os_username #{tempest_adm_user} --os_password #{tempest_adm_pass} --os_tenant_name #{tempest_comp_tenant} --os_auth_url http://#{keystone_address}:5000/v2.0 flavor-create tempest-stuff #{alt_flavor_ref} 128 1 1 || exit 0
+  nova --os_username #{tempest_adm_user} --os_password #{tempest_adm_pass} --os_tenant_name #{tempest_comp_tenant} --os_auth_url http://#{keystone_address}:5000/v2.0 flavor-create tempest-stuff-2 #{flavor_ref} 132 1 1 || exit 0
 EOH
 end
 
