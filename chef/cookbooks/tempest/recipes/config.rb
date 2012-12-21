@@ -107,7 +107,7 @@ keystone_register "add #{tempest_comp_user}:#{tempest_comp_tenant} user admin ro
   port keystone_admin_port
   token keystone_token
   user_name tempest_comp_user
-  role_name "admin"
+  role_name "Member"
   tenant_name tempest_comp_tenant 
   action :add_access
 end
