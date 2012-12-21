@@ -99,22 +99,22 @@ users = { {'name' => tempest_comp_user, 'pass' => tempest_comp_pass, 'role' => '
               {'name' => tempest_adm_user, 'pass' => tempest_adm_pass, 'role' => 'admin' },
             }
 users.each do |user|
-  keystone_register "add #{user[:name]}:#{user[:pass]} user" do
+  keystone_register "add #{user["name"]}:#{user["pass"]} user" do
     host keystone_address
     port keystone_admin_port
     token keystone_token
-    user_name user[:name]
-    user_password user[:pass]
+    user_name user["name"]
+    user_password user["pass"]
     tenant_name tempest_comp_tenant 
     action :add_user
   end
 
-  keystone_register "add #{user[:name]}:#{tempest_comp_tenant} user #{user[:role]} role" do
+  keystone_register "add #{user["name"]}:#{tempest_comp_tenant} user #{user["role"]} role" do
     host keystone_address
     port keystone_admin_port
     token keystone_token
-    user_name user[:name]
-    role_name user[:role]
+    user_name user["name"]
+    role_name user["role"]
     tenant_name tempest_comp_tenant 
     action :add_access
   end
