@@ -95,9 +95,10 @@ keystone_register "create tenant #{tempest_comp_tenant} for tempest" do
   action :add_tenant
 end
 
-users = { {'name' => tempest_comp_user, 'pass' => tempest_comp_pass, 'role' => 'Member'},
-              {'name' => tempest_adm_user, 'pass' => tempest_adm_pass, 'role' => 'admin' },
-            }
+users = [
+          {'name' => tempest_comp_user, 'pass' => tempest_comp_pass, 'role' => 'Member'},
+          {'name' => tempest_adm_user, 'pass' => tempest_adm_pass, 'role' => 'admin' },
+        ]
 users.each do |user|
   keystone_register "add #{user["name"]}:#{user["pass"]} user" do
     host keystone_address
