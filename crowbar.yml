@@ -21,6 +21,7 @@ barclamp:
   version: 0
   requires:
     - nova
+    - cinder
   member:
     - openstack
 
