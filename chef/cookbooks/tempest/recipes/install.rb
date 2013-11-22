@@ -72,6 +72,17 @@ remote_file tarball_url do
   action :create_if_missing
 end
 
+#needed to create venv correctly
+if %w(redhat centos).include?(node.platform)
+  package("libxslt-devel")
+else
+  package("libxslt1-dev")
+end
+#needed for tempest.tests.test_wrappers.TestWrappers.test_pretty_tox
+package("git")
+#needed for ec2 and s3 test suite
+package("euca2ools")
+
 bash "install_tempest_from_archive" do
   cwd "/tmp"
   code "tar xf #{filename} && mv openstack-tempest-* tempest && mv tempest /opt/ && rm #{filename}"
