@@ -255,6 +255,10 @@ template "/tmp/tempest_smoketest.sh" do
   )
 end
 
+bash "disable requiretty in /etc/sudoers" do
+  code "sed -i -re 's/^(Default.*requiretty)$/#\1/' /etc/sudoers"
+  action :run
+end
 
 cookbook_file "#{node[:tempest][:tempest_path]}/run_tempest.py" do
   source "run_tempest.py"
